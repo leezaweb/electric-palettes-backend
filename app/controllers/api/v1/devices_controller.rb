@@ -1,7 +1,18 @@
 class Api::V1::DevicesController < ApplicationController
 
     def index
-      render json: Device.all.order(:decade)
+      loader = params[:load] || 1
+      limit = 8
+      render json: Device.limit(loader.to_i*limit)
+      # render json: {colors:Color.all,devices:Device.limit(loader.to_i*limit)}
+
+      # respond_to do |format|
+      #   format.json {render :json =>  {colors:Color.all.to_json(:include => [:devices]), devices:Device.all.limit(loader.to_i*limit)}}
+      # end
+    end
+
+    def all
+      render json: Device.all
     end
 
     def show
@@ -9,17 +20,13 @@ class Api::V1::DevicesController < ApplicationController
     end
 
     def update
-      puts "&&&&&&&&&&#{params}&&&&&&&&&&&&"
 
         id = params[:id]
         colors = params[:colors].split(",").map{|x|Color.find_by(name:x)}
-        puts "&&&&&&&&&&#{colors}&&&&&&&&&&&&"
         device = Device.find(id)
-        puts "&&&&&&&&&&#{device}&&&&&&&&&&&&"
         this_palette = Palette.create(colors:colors)
         device.palette = this_palette
         device.save
-        puts "&&&&&&&&&&#{device}&&&&&&&&&&&&"
 
 
     end
